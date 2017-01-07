@@ -34,18 +34,21 @@ if __name__ == '__main__':
     logging.getLogger().setLevel(logging.NOTSET)
     result = True
     parser = argparse.ArgumentParser()
-    parser.add_argument('--all', help='check all box versions',
-                                 action='store_true')
-    parser.add_argument('box', help='name of box to check, e.g. centos/7')
+    parser.add_argument('--all', action='store_true',
+                        help='check all box versions')
+    parser.add_argument('boxes', nargs='+', metavar='box',
+                        help='name of a box to check, e.g. centos/7')
     args = parser.parse_args()
-    box = Box(*args.box.split('/', 1))
-    versions = list(box.versions())
-    if not args.all:
-        versions = versions[:1] # only test the latest version
-    for version in versions:
-        for provider in box.providers(version):
-            url = box.url(version, provider)
-            if not check_url(url):
-                result = False
+
+    for box_name in args.boxes:
+        box = Box(*box_name.split('/', 1))
+        versions = list(box.versions())
+        if not args.all:
+            versions = versions[:1] # only test the latest version
+        for version in versions:
+            for provider in box.providers(version):
+                url = box.url(version, provider)
+                if not check_url(url):
+                    result = False
     if not result:
         sys.exit(1)
