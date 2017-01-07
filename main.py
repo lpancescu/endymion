@@ -34,7 +34,7 @@ if __name__ == '__main__':
     logging.getLogger().setLevel(logging.NOTSET)
     result = True
     parser = argparse.ArgumentParser()
-    parser.add_argument('--all', action='store_true',
+    parser.add_argument('-a', '--all', action='store_true',
                         help='check all box versions')
     parser.add_argument('boxes', nargs='+', metavar='box',
                         help='name of a box to check, e.g. centos/7')
