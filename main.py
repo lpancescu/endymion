@@ -9,24 +9,32 @@ import urllib2
 from atlas.box import Box
 
 
+REDIRECT_LIMIT = 100
+
+
 def check_url(url):
-    request = urllib2.Request(url)
-    if request.get_type() == 'https':
-        conn = httplib.HTTPSConnection(request.get_host())
-    elif request.get_type() == 'http':
-        conn = httplib.HTTPConnection(request.get_host())
-    conn.request('HEAD', request.get_selector())
-    response = conn.getresponse()
-    if response.status == httplib.OK:
-        logging.info('{}: OK'.format(url))
-        return True
-    elif response.status == httplib.FOUND:
-        redirect_url = response.getheader('Location')
-        logging.debug('{}: FOUND'.format(url))
-        logging.debug('==> {}'.format(redirect_url))
-        return check_url(redirect_url)
+    redirects = 0
+    while redirects < REDIRECT_LIMIT:
+        request = urllib2.Request(url)
+        if request.get_type() == 'https':
+            conn = httplib.HTTPSConnection(request.get_host())
+        elif request.get_type() == 'http':
+            conn = httplib.HTTPConnection(request.get_host())
+        conn.request('HEAD', request.get_selector())
+        response = conn.getresponse()
+        if response.status == httplib.OK:
+            logging.info('{}: OK'.format(url))
+            return True
+        elif response.status == httplib.FOUND:
+            redirects += 1
+            logging.debug('{}: FOUND'.format(url))
+            url = response.getheader('Location')
+            logging.debug('==> {}'.format(url))
+        else:
+            logging.error('{}: {} {}'.format(url, response.status, response.reason))
+            return False
     else:
-        logging.error('{}: {} {}'.format(url, response.status, response.reason))
+        logging.error('redirection limit exceeded')
         return False
 
 
