@@ -9,7 +9,7 @@ import urllib2
 from atlas.box import Box
 
 
-REDIRECT_LIMIT = 100
+REDIRECT_LIMIT = 20
 
 
 def check_url(url):
