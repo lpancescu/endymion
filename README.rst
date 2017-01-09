@@ -33,11 +33,11 @@ with many versions).
 Limitations
 ===========
 
-* ``atlas-lint`` uses HTTP 1.1 ``HEAD`` to check the availability of the
-  boxes without downloading them. This usually works with external boxes
-  like the ones provided by CentOS or Fedora, but it will fail with
-  ``405 Method Not Allowed`` for boxes hosted by Hashicorp; using
-  ``GET`` with a ``Content-range`` header produces the same response.
+* ``atlas-lint`` uses the ``HEAD`` method of HTTP 1.1 to check the availability
+  of the boxes without downloading them. This usually works with external boxes
+  like the ones provided by CentOS or Fedora, but it will fail with ``405
+  Method Not Allowed`` for boxes hosted by Hashicorp; using ``GET`` with a
+  ``Content-range`` header produces the same response.
 * The CentOS project provides gpg-signed SHA256 checksums, but
   ``atlas-lint`` doesn't try to validate them (this would require
   downloading each variant of a box)
