@@ -39,14 +39,20 @@ def check_url(url):
 
 
 if __name__ == '__main__':
-    logging.getLogger().setLevel(logging.NOTSET)
     result = True
     parser = argparse.ArgumentParser()
     parser.add_argument('-a', '--all', action='store_true',
                         help='check all box versions')
+    parser.add_argument('-v', '--verbose', action='count', default=0,
+                        help='increase log verbosity')
     parser.add_argument('boxes', nargs='+', metavar='box',
                         help='name of a box to check, e.g. centos/7')
     args = parser.parse_args()
+
+    if args.verbose >= 2:
+        logging.getLogger().setLevel(logging.NOTSET)
+    elif args.verbose == 1:
+        logging.getLogger().setLevel(logging.INFO)
 
     for box_name in args.boxes:
         box = Box(*box_name.split('/', 1))
