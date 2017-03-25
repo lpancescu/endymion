@@ -7,34 +7,33 @@ import sys
 import httplib
 import urllib2
 from atlas.box import Box
+from policy import RedirectLimitPolicy
+from policy import PolicyError
 
 
-REDIRECT_LIMIT = 20
-
-
-def check_url(url):
-    redirects = 0
-    while redirects < REDIRECT_LIMIT:
-        request = urllib2.Request(url)
-        if request.get_type() == 'https':
-            conn = httplib.HTTPSConnection(request.get_host())
-        elif request.get_type() == 'http':
-            conn = httplib.HTTPConnection(request.get_host())
-        conn.request('HEAD', request.get_selector())
-        response = conn.getresponse()
-        if response.status == httplib.OK:
-            logging.info('{}: OK'.format(url))
-            return True
-        elif response.status == httplib.FOUND:
-            redirects += 1
-            logging.debug('{}: FOUND'.format(url))
-            url = response.getheader('Location')
-            logging.debug('==> {}'.format(url))
-        else:
-            logging.error('{}: {} {}'.format(url, response.status, response.reason))
-            return False
-    else:
-        logging.error('redirection limit exceeded')
+def check_url(url, policy):
+    try:
+        while True:
+            request = urllib2.Request(url)
+            if request.get_type() == 'https':
+                conn = httplib.HTTPSConnection(request.get_host())
+            elif request.get_type() == 'http':
+                conn = httplib.HTTPConnection(request.get_host())
+            conn.request('HEAD', request.get_selector())
+            response = conn.getresponse()
+            if response.status == httplib.OK:
+                logging.info('{}: OK'.format(url))
+                return True
+            elif response.status == httplib.FOUND:
+                policy(url)
+                logging.debug('{}: FOUND'.format(url))
+                url = response.getheader('Location')
+                logging.debug('==> {}'.format(url))
+            else:
+                logging.error('{}: {} {}'.format(url, response.status, response.reason))
+                return False
+    except PolicyError as e:
+        logging.error(e)
         return False
 
 
@@ -62,7 +61,8 @@ if __name__ == '__main__':
         for version in versions:
             for provider in box.providers(version):
                 url = box.url(version, provider)
-                if not check_url(url):
+                policy = RedirectLimitPolicy(20)
+                if not check_url(url, policy):
                     result = False
     if not result:
         sys.exit(1)
