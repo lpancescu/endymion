@@ -28,7 +28,7 @@ class VersionCheckPolicy(object):
 
     def _version_transform(self, version):
         if self.os_family == 'centos':
-            return version.replace('.', '_')
+            return version[:version.rindex('.')]
         return version
 
     def __call__(self, url):
