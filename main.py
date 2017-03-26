@@ -16,10 +16,10 @@ def check_url(url, policies):
     try:
         while True:
             request = urllib2.Request(url)
-            if request.get_type() == 'https':
-                conn = httplib.HTTPSConnection(request.get_host())
-            elif request.get_type() == 'http':
-                conn = httplib.HTTPConnection(request.get_host())
+            class_map = { 'https': httplib.HTTPSConnection,
+                          'http' : httplib.HTTPConnection }
+            _conn_class = class_map[request.get_type()]
+            conn = _conn_class(request.get_host())
             conn.request('HEAD', request.get_selector())
             response = conn.getresponse()
             if response.status == httplib.OK:
