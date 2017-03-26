@@ -6,10 +6,10 @@ import logging
 import sys
 import httplib
 import urllib2
-from endymion.box import Box
-from policy import RedirectLimitPolicy
-from policy import VersionCheckPolicy
-from policy import PolicyError
+from .box import Box
+from .policy import RedirectLimitPolicy
+from .policy import VersionCheckPolicy
+from .policy import PolicyError
 
 
 def check_url(url, policies):
