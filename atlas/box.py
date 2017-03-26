@@ -1,17 +1,17 @@
-from __future__ import unicode_literals, print_function
+
 
 import json
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 class Box(object):
     def __init__(self, publisher, name):
         json_url = "https://atlas.hashicorp.com/{0}/boxes/{1}/"\
                     .format(publisher, name)
-        request = urllib2.Request(json_url, None,
+        request = urllib.request.Request(json_url, None,
                     {'Accept': 'application/json'})
-        json_file = urllib2.urlopen(request)
-        self._data = json.loads(json_file.read())
+        json_file = urllib.request.urlopen(request)
+        self._data = json.loads(json_file.read().decode('utf-8'))
 
     def versions(self):
         return tuple(v['version'] for v in self._data['versions']

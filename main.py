@@ -1,11 +1,11 @@
 #!/usr/bin/env python2.7
-from __future__ import unicode_literals, print_function
+
 
 import argparse
 import logging
 import sys
-import httplib
-import urllib2
+import http.client
+import urllib.request, urllib.error, urllib.parse
 from atlas.box import Box
 from policy import RedirectLimitPolicy
 from policy import VersionCheckPolicy
@@ -15,19 +15,19 @@ from policy import PolicyError
 def check_url(url, policies):
     try:
         while True:
-            request = urllib2.Request(url)
-            class_map = { 'https': httplib.HTTPSConnection,
-                          'http' : httplib.HTTPConnection }
-            _conn_class = class_map[request.get_type()]
-            conn = _conn_class(request.get_host())
-            conn.request('HEAD', request.get_selector())
+            request = urllib.request.Request(url)
+            class_map = { 'https': http.client.HTTPSConnection,
+                          'http' : http.client.HTTPConnection }
+            _conn_class = class_map[request.type]
+            conn = _conn_class(request.host)
+            conn.request('HEAD', request.selector)
             response = conn.getresponse()
-            if response.status == httplib.OK:
+            if response.status == http.client.OK:
                 for policy in policies:
                     policy(url)
                 logging.info('{}: OK'.format(url))
                 return True
-            elif response.status == httplib.FOUND:
+            elif response.status == http.client.FOUND:
                 logging.debug('{}: FOUND'.format(url))
                 url = response.getheader('Location')
                 logging.debug('==> {}'.format(url))

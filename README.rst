@@ -22,11 +22,11 @@ By default, ``endymion`` checks the latest version of the boxes
 provided as arguments, displaying any errors::
 
         $ cd endymion/
-        $ python2 main.py centos/6 centos/7
+        $ python3 main.py centos/6 centos/7
 
 Use ``-v`` to see more details (``-vv`` to also show the redirects)::
 
-        $ python2 main.py -v centos/6
+        $ python3 main.py -v centos/6
         INFO:root:http://cloud.centos.org/centos/6/vagrant/x86_64/images/CentOS-6-x86_64-Vagrant-1611_01.Libvirt.box: OK
         INFO:root:http://cloud.centos.org/centos/6/vagrant/x86_64/images/CentOS-6-x86_64-Vagrant-1611_01.VirtualBox.box: OK
         INFO:root:http://cloud.centos.org/centos/6/vagrant/x86_64/images/CentOS-6-x86_64-Vagrant-1611_01.VMwareFusion.box: OK
@@ -48,3 +48,6 @@ Limitations
 * The CentOS project provides gpg-signed SHA256 checksums, but
   ``endymion`` doesn't try to validate them (this would require
   downloading each variant of a box)
+* The code in this branch only works with Python 3.x (tested with 3.5).
+  I first converted it with *2to3* and then fixed the remaining
+  problems.
