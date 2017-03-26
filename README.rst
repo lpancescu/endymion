@@ -48,3 +48,8 @@ Limitations
 * The CentOS project provides gpg-signed SHA256 checksums, but
   ``endymion`` doesn't try to validate them (this would require
   downloading each variant of a box)
+* The code only supports Python 2.7, which is the default version on
+  CentOS Linux 7. If you need Python 3 support, please checkout the
+  ``python3`` branch. I chose to maintain different code bases since
+  future versions of CentOS Linux will very likely use Python 3.x, so it
+  doesn't make sense to add extra complexity to the code.
