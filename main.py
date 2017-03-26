@@ -6,7 +6,7 @@ import logging
 import sys
 import httplib
 import urllib2
-from atlas.box import Box
+from endymion.box import Box
 from policy import RedirectLimitPolicy
 from policy import VersionCheckPolicy
 from policy import PolicyError
