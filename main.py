@@ -6,7 +6,7 @@ import logging
 import sys
 import http.client
 import urllib.request, urllib.error, urllib.parse
-from atlas.box import Box
+from endymion.box import Box
 from policy import RedirectLimitPolicy
 from policy import VersionCheckPolicy
 from policy import PolicyError
