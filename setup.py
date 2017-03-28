@@ -34,7 +34,7 @@ setup(
 
     # Author details
     author='Laurențiu Păncescu',
-    author_email='lpancescu@gmail.com',
+    author_email='laurentiu@laurentiupancescu.com',
 
     # Choose your license
     license='MIT',
