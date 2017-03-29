@@ -1,5 +1,3 @@
-
-
 class PolicyError(RuntimeError):
     def __init__(self, message, url):
         self.message = message

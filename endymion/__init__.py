@@ -1,48 +1,16 @@
-
-
 import argparse
 import logging
 import sys
-import http.client
-import urllib.request, urllib.error, urllib.parse
 import pkg_resources
 
 from .box import Box
 from .policy import RedirectLimitPolicy
 from .policy import VersionCheckPolicy
-from .policy import PolicyError
+from .urlutil import check_url
 
 
 # The module version is defined in setup.py; ask setuptools
 __version__ = pkg_resources.get_distribution(__name__).version
-
-def check_url(url, policies):
-    try:
-        while True:
-            request = urllib.request.Request(url)
-            class_map = { 'https': http.client.HTTPSConnection,
-                          'http' : http.client.HTTPConnection }
-            _conn_class = class_map[request.type]
-            conn = _conn_class(request.host)
-            conn.request('HEAD', request.selector)
-            response = conn.getresponse()
-            if response.status == http.client.OK:
-                for policy in policies:
-                    policy(url)
-                logging.info('{}: OK'.format(url))
-                return True
-            elif response.status == http.client.FOUND:
-                logging.debug('{}: FOUND'.format(url))
-                url = response.getheader('Location')
-                logging.debug('==> {}'.format(url))
-                for policy in policies:
-                    policy(url)
-            else:
-                logging.error('{}: {} {}'.format(url, response.status, response.reason))
-                return False
-    except PolicyError as e:
-        logging.error(e)
-        return False
 
 
 def main():
@@ -67,8 +35,9 @@ def main():
         os_family, major_version = box_name.split('/', 1)
         box = Box(os_family, major_version)
         versions = list(box.versions())
+        # only test the latest version by default
         if not args.all:
-            versions = versions[:1] # only test the latest version
+            versions = versions[:1]
         for version in versions:
             for provider in box.providers(version):
                 url = box.url(version, provider)
