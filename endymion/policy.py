@@ -9,7 +9,7 @@ class PolicyError(RuntimeError):
         return "{}: {}".format(self.message, self.url)
 
 
-class RedirectLimitPolicy(object):
+class RedirectLimitPolicy:
     def __init__(self, max_redirects):
         self.max_redirects = max_redirects
         self.redirects = 0
@@ -20,7 +20,7 @@ class RedirectLimitPolicy(object):
         self.redirects += 1
 
 
-class VersionCheckPolicy(object):
+class VersionCheckPolicy:
     def __init__(self, os_family, version_string):
         self.version_string = version_string
         self.os_family = os_family

@@ -4,7 +4,7 @@ import json
 import urllib.request, urllib.error, urllib.parse
 
 
-class Box(object):
+class Box:
     def __init__(self, publisher, name):
         json_url = "https://atlas.hashicorp.com/{0}/boxes/{1}/"\
                     .format(publisher, name)
