@@ -5,12 +5,16 @@ import logging
 import sys
 import http.client
 import urllib.request, urllib.error, urllib.parse
+import pkg_resources
 
 from .box import Box
 from .policy import RedirectLimitPolicy
 from .policy import VersionCheckPolicy
 from .policy import PolicyError
 
+
+# The module version is defined in setup.py; ask setuptools
+__version__ = pkg_resources.get_distribution(__name__).version
 
 def check_url(url, policies):
     try:
@@ -44,6 +48,8 @@ def check_url(url, policies):
 def main():
     result = True
     parser = argparse.ArgumentParser()
+    parser.add_argument('-V', '--version', action='version',
+                        version='%(prog)s {}'.format(__version__))
     parser.add_argument('-a', '--all', action='store_true',
                         help='check all box versions')
     parser.add_argument('-v', '--verbose', action='count', default=0,
