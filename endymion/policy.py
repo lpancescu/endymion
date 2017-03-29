@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+
 class PolicyError(RuntimeError):
     def __init__(self, message, url):
         self.message = message
