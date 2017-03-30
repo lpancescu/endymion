@@ -19,12 +19,17 @@ class RedirectLimitPolicy(object):
     """Ensure only a maximum number of redirects are followed."""
     def __init__(self, max_redirects):
         self.max_redirects = max_redirects
-        self.redirects = 0
+        self.redirect_count = 0
+        self.redirects = set()
 
     def notify(self, url, response):
-        if self.redirects >= self.max_redirects:
-            raise FatalError('too many redirects', url)
-        self.redirects += 1
+        if response.status == httplib.FOUND:
+            if url in self.redirects:
+                raise FatalError('circular redirect', url)
+            if self.redirect_count >= self.max_redirects:
+                raise FatalError('too many redirects', url)
+            self.redirect_count += 1
+            self.redirects.add(url)
 
 
 class VersionCheckPolicy(object):
