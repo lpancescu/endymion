@@ -1,38 +1,55 @@
-import logging
 import http.client
 import urllib.request
 import urllib.error
 import urllib.parse
 
-from .policy import PolicyError
 
+class URLTracker(object):
+    """Follow redirected URLs to their final destination."""
+    def __init__(self, observers=None):
+        """Create an URLTracker object
 
-def check_url(url, policies):
-    try:
+        observers -- iterable containing observers to be notified of each URL
+        """
+        self.observers = []
+        if observers is not None:
+            self.observers.extend(observers)
+
+    def _notify_all(self, url, response):
+        """Notify observers about an URL and the received HTTP response.
+        """
+        for observer in self.observers:
+            observer.notify(url, response)
+
+    def register(self, observer):
+        """Add an observer to be notified about followed URLs.
+
+        If the observer is already in the list, no action is taken.
+        """
+        if observer not in observers:
+            observers.append(observer)
+
+    def unregister(self, observer):
+        """Remove an observer from the list of observers.
+
+        A ValueError is raised if he observer is not in the list.
+        """
+        observers.remove(observer)
+
+    def follow(self, url):
+        """Follow HTTP redirects and notify observers about each URL."""
         while True:
             request = urllib.request.Request(url)
-            class_map = {'https': http.client.HTTPSConnection,
-                         'http': http.client.HTTPConnection}
-            _conn_class = class_map[request.type]
-            conn = _conn_class(request.host)
+            if request.type == 'https':
+                conn = http.client.HTTPSConnection(request.host)
+            else:
+                conn = http.client.HTTPConnection(request.host)
             conn.request('HEAD', request.selector)
             response = conn.getresponse()
+            self._notify_all(url, response)
             if response.status == http.client.OK:
-                for policy in policies:
-                    policy(url)
-                logging.info('{}: OK'.format(url))
                 return True
             elif response.status == http.client.FOUND:
-                logging.debug('{}: FOUND'.format(url))
                 url = response.getheader('Location')
-                logging.debug('==> {}'.format(url))
-                for policy in policies:
-                    policy(url)
             else:
-                logging.error('{}: {} {}'.format(url,
-                                                 response.status,
-                                                 response.reason))
                 return False
-    except PolicyError as e:
-        logging.error(e)
-        return False

@@ -1,12 +1,14 @@
+"""Check links to external Vagrant boxes listed on Atlas."""
+
+
 import argparse
 import logging
 import sys
 import pkg_resources
 
-from .box import Box
-from .policy import RedirectLimitPolicy
-from .policy import VersionCheckPolicy
-from .urlutil import check_url
+from endymion.box import Box
+import endymion.policy
+import endymion.urlutil
 
 
 # The module version is defined in setup.py; ask setuptools
@@ -14,7 +16,6 @@ __version__ = pkg_resources.get_distribution(__name__).version
 
 
 def main():
-    result = True
     parser = argparse.ArgumentParser()
     parser.add_argument('-V', '--version', action='version',
                         version='%(prog)s {}'.format(__version__))
@@ -31,6 +32,7 @@ def main():
     elif args.verbose == 1:
         logging.getLogger().setLevel(logging.INFO)
 
+    success = True
     for box_name in args.boxes:
         os_family, major_version = box_name.split('/', 1)
         box = Box(os_family, major_version)
@@ -41,9 +43,17 @@ def main():
         for version in versions:
             for provider in box.providers(version):
                 url = box.url(version, provider)
-                rlp = RedirectLimitPolicy(20)
-                vcp = VersionCheckPolicy(os_family, version)
-                if not check_url(url, [rlp, vcp]):
-                    result = False
-    if not result:
+                rlp = policy.RedirectLimitPolicy(20)
+                vcp = policy.VersionCheckPolicy(os_family, version)
+                asp = policy.AlwaysSSLPolicy()
+                lp = policy.LogPolicy()
+                tracker = urlutil.URLTracker([lp, rlp, asp, vcp])
+                try:
+                    if not tracker.follow(url):
+                        success = False
+                except policy.FatalError as pe:
+                    fmt = '{version}/{provider}: {pe.message} ({pe.url})'
+                    print(fmt.format(**locals()))
+                    success = False
+    if not success:
         sys.exit(1)
