@@ -15,7 +15,7 @@ class FatalError(RuntimeError):
         return "{}: {}".format(self.message, self.url)
 
 
-class RedirectLimitPolicy(object):
+class RedirectLimitPolicy:
     """Ensure only a maximum number of redirects are followed."""
     def __init__(self, max_redirects):
         self.max_redirects = max_redirects
@@ -32,7 +32,7 @@ class RedirectLimitPolicy(object):
             self.redirects.add(url)
 
 
-class VersionCheckPolicy(object):
+class VersionCheckPolicy:
     """Ensure the URL corresponds to the box version.
 
     Currently, only support for CentOS boxes is implemented.
@@ -55,7 +55,7 @@ class VersionCheckPolicy(object):
                 raise FatalError(message, url)
 
 
-class AlwaysSSLPolicy(object):
+class AlwaysSSLPolicy:
     """Ensure all URLs are served via https."""
     def _validate_scheme(self, url):
         scheme = urlparse(url).scheme
@@ -70,7 +70,7 @@ class AlwaysSSLPolicy(object):
             self._validate_scheme(url)
 
 
-class LogPolicy(object):
+class LogPolicy:
     """Log every URL being followed."""
     def notify(self, url, response):
         if response.status == http.client.OK:

@@ -4,7 +4,7 @@ import urllib.error
 import urllib.parse
 
 
-class URLTracker(object):
+class URLTracker:
     """Follow redirected URLs to their final destination."""
     def __init__(self, observers=None):
         """Create an URLTracker object

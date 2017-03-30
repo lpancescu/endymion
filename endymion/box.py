@@ -6,7 +6,7 @@ import urllib.error
 import urllib.parse
 
 
-class Box(object):
+class Box:
     """Downloads and parses metainformation about a Vagrant box"""
     def __init__(self, publisher, name):
         """Extract metainformation for a Vagrant box.
