@@ -19,7 +19,7 @@ class Box:
         request = urllib.request.Request(json_url, None,
                                          {'Accept': 'application/json'})
         json_file = urllib.request.urlopen(request)
-        self._data = json.loads(json_file.read().decode('utf-8'))
+        self._data = json.loads(json_file.read())
         # We need to preserve the order of the versions
         self._versions = tuple(v['version'] for v in self._data['versions'])
         # Prepare a data structure for quick lookups
