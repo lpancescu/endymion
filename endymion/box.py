@@ -20,21 +20,26 @@ class Box:
                                          {'Accept': 'application/json'})
         json_file = urllib.request.urlopen(request)
         self._data = json.loads(json_file.read().decode('utf-8'))
+        # We need to preserve the order of the versions
+        self._versions = tuple(v['version'] for v in self._data['versions'])
+        # Prepare a data structure for quick lookups
+        self._boxes = {}
+        for v in self._data['versions']:
+            _version = v['version']
+            self._boxes[_version] = {}
+            for p in v['providers']:
+                _provider = p['name']
+                self._boxes[_version][_provider] = {}
+                self._boxes[_version][_provider]['url'] = p['url']
 
     def versions(self):
         """Return a tuple with all available box versions."""
-        return tuple(v['version'] for v in self._data['versions']
-                     if v['status'] == 'active')
+        return self._versions
 
     def providers(self, version):
         """Return a list of providers for a specific box version."""
-        _ver = ([v for v in self._data['versions']
-                 if v['version'] == version])[0]
-        return [p['name'] for p in _ver['providers']]
+        return self._boxes[version].keys()
 
     def url(self, version, provider):
         """Return the download URL for a specific box version and provider."""
-        _ver = ([v for v in self._data['versions']
-                 if v['version'] == version])[0]
-        return ([p for p in _ver['providers']
-                 if p['name'] == provider])[0]['url']
+        return self._boxes[version][provider]['url']
