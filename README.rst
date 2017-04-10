@@ -2,7 +2,7 @@
 Endymion
 ========
 
-*Endymion* is a command-line tool that checks if the specified Vagrant
+Endymion is a command-line tool that checks if the specified Vagrant
 boxes can be downloaded from Hashicorp's Atlas_. In the case of the
 official `CentOS Linux images for Vagrant`_, it will also check if the
 images correspond to the version listed on Atlas.
@@ -13,11 +13,11 @@ images correspond to the version listed on Atlas.
 Installation
 ============
 
-*Endymion* doesn't have any external dependencies outside of the Python
+Endymion doesn't have any external dependencies outside of the Python
 standard library, so it shouldn't pose any problems to install it
 directly. You can also install it in a virtualenv if you prefer.
 
-If you only plan to use *Endymion*, the simplest way is to install it
+If you only plan to use Endymion, the simplest way is to install it
 from PyPI::
 
         $ pip install endymion
@@ -30,6 +30,9 @@ Developers can also run the development version::
 
 Usage
 =====
+
+Checking links
+--------------
 
 By default, ``endymion`` checks the latest version of the boxes
 provided as arguments, displaying any errors::
@@ -44,22 +47,35 @@ Use ``-v`` to see more details (``-vv`` to also show the redirects)::
         INFO:root:http://cloud.centos.org/centos/6/vagrant/x86_64/images/CentOS-6-x86_64-Vagrant-1611_01.VMwareFusion.box: OK
         INFO:root:http://cloud.centos.org/centos/6/vagrant/x86_64/images/CentOS-6-x86_64-Vagrant-1611_01.VMwareFusion.box: OK
 
-If you want to check all versions available on Atlas, use ``--all`` (not
-recommended for day-to-day use because of the large number of requests
-to Atlas, for boxes with many versions).
+If you want to check all versions available on Atlas, use ``--all``
+(not recommended for day-to-day use because of the large number of
+requests to Atlas, for boxes with many versions).
 
 The return code will be 0 if no errors were found, and non-zero
 otherwise.
+
+Exporting Atlas data as JSON
+----------------------------
+
+If you would like to export the existing metadata from Atlas, use the
+``--export`` option.  Endymion expects to find the SHA256 checksum
+files in the same directory, named after the corresponding image
+(e.g. *centos_7.sha256sum.txt* for *centos/7*); since Atlas typically
+has no checksum information in the metadata, the checksums will be
+read from these external files and inserted in the generated JSON
+metadata.
+
+        $ endymion --export centos/6 centos/7
 
 Limitations
 ===========
 
 * ``endymion`` uses the ``HEAD`` method of HTTP 1.1 to check the
-  availability of the boxes without downloading them. This usually works
-  with external boxes like the ones provided by CentOS or Fedora, but it
-  will fail with ``405 Method Not Allowed`` for boxes hosted by
-  Hashicorp; using ``GET`` with a ``Content-range`` header produces the
-  same response.
+  availability of the boxes without downloading them. This usually
+  works with external boxes like the ones provided by CentOS or
+  Fedora, but it will fail with ``405 Method Not Allowed`` for boxes
+  hosted by Hashicorp; using ``GET`` with a ``Content-range`` header
+  produces the same response.
 * The CentOS project provides GnuPG-signed SHA256 checksums, but
   ``endymion`` doesn't try to validate them (this would require
   downloading each variant of a box)
@@ -73,9 +89,11 @@ different codebases:
 * The ``master`` branch contains the Python 2.7 source code
 * The ``python3`` branch, unsurprisingly, only runs under Python 3.x
   (instead of unifying the two code bases, I decided to convert the
-  Python 2.7 code to Python 3, to avoid needlessly complicating the code
-  to support both versions in the long term; if CentOS Linux 8 will
-  default to Python 3, I can just move the Python 3 code to ``master``).
+  Python 2.7 code to Python 3, to avoid needlessly complicating the
+  code to support both versions in the long term; if CentOS Linux 8
+  will default to Python 3, I can just move the Python 3 code to
+  ``master``).
 
-If you are a regular user, this doesn't matter: ``pip install endymion``
-will always install the right package for your Python version.
+If you are a regular user, this doesn't matter: ``pip install
+endymion`` will always install the right package for your Python
+version.
