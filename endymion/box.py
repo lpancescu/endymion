@@ -41,3 +41,19 @@ class Box(object):
     def url(self, version, provider):
         """Return the download URL for a specific box version and provider."""
         return self._boxes[version][provider]['url']
+
+    def checksum(self, version, provider, checksum, checksum_type='sha256'):
+        self._boxes[version][provider]['checksum_type'] = checksum_type
+        self._boxes[version][provider]['checksum'] = checksum
+
+    def json(self):
+        _data = self._data
+        for v in _data['versions']:
+            _version = v['version']
+            for p in v['providers']:
+                _provider = p['name']
+                _box_data = self._boxes[_version][_provider]
+                if 'checksum' in _box_data:
+                    p['checksum_type'] = _box_data['checksum_type']
+                    p['checksum'] = _box_data['checksum']
+        return json.dumps(_data)

@@ -9,6 +9,7 @@ import pkg_resources
 from endymion.box import Box
 import endymion.policy
 import endymion.urlutil
+from endymion.checksums import SHA256Sums
 
 
 # The module version is defined in setup.py; ask setuptools
@@ -21,6 +22,8 @@ def main():
                         version='%(prog)s {}'.format(__version__))
     parser.add_argument('-a', '--all', action='store_true',
                         help='check all box versions')
+    parser.add_argument('--export', action='store_true',
+                        help='export JSON data for self-hosting')
     parser.add_argument('-v', '--verbose', action='count', default=0,
                         help='increase log verbosity')
     parser.add_argument('boxes', nargs='+', metavar='box',
@@ -35,10 +38,12 @@ def main():
     success = True
     for box_name in args.boxes:
         os_family, major_version = box_name.split('/', 1)
+        with open('{}_{}.sha256sum.txt'.format(os_family,
+                                               major_version)) as f:
+            checksums = SHA256Sums(f)
         box = Box(os_family, major_version)
         versions = list(box.versions())
-        # only test the latest version by default
-        if not args.all:
+        if not (args.all or args.export):
             versions = versions[:1]
         for version in versions:
             for provider in box.providers(version):
@@ -47,7 +52,11 @@ def main():
                 vcp = policy.VersionCheckPolicy(os_family, version)
                 asp = policy.AlwaysSSLPolicy()
                 lp = policy.LogPolicy()
-                tracker = urlutil.URLTracker([lp, rlp, asp, vcp])
+                cw = policy.ChecksumWriter(box, version, provider, checksums)
+                if args.export:
+                    tracker = urlutil.URLTracker([cw, lp, rlp])
+                else:
+                    tracker = urlutil.URLTracker([lp, rlp, asp, vcp])
                 try:
                     if not tracker.follow(url):
                         success = False
@@ -55,5 +64,9 @@ def main():
                     fmt = '{version}/{provider}: {pe.message} ({pe.url})'
                     print(fmt.format(**locals()))
                     success = False
+        if args.export:
+            with open('{}_{}.json'.format(os_family,
+                                          major_version), 'w') as f:
+                f.write(box.json())
     if not success:
         sys.exit(1)

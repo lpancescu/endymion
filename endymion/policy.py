@@ -85,3 +85,17 @@ class LogPolicy(object):
             logging.error('{}: {} {}'.format(url,
                                              response.status,
                                              response.reason))
+
+
+class ChecksumWriter(object):
+    def __init__(self, box, version, provider, checksums):
+        self.box = box
+        self.version = version
+        self.provider = provider
+        self.checksums = checksums
+
+    def notify(self, url, response):
+        if response.status == httplib.OK:
+            self.box.checksum(self.version,
+                              self.provider,
+                              self.checksums[url[url.rindex('/')+1:]])
