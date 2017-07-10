@@ -12,7 +12,7 @@ class Box(object):
         publisher -- Atlas owner
         name -- Vagrant box name
         """
-        json_url = ("https://atlas.hashicorp.com/{0}/boxes/{1}/"
+        json_url = ("https://app.vagrantup.com/{0}/boxes/{1}/"
                     .format(publisher, name))
         request = urllib2.Request(json_url, None,
                                   {'Accept': 'application/json'})
